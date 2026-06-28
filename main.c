@@ -3,6 +3,17 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
+void shaderInit(char **vertexShader) {
+    FILE *fileVar = fopen("shader.vert", "r");
+
+}
+
+const char *vertexShaderSource = "#version 400 core\n"
+    "layout (location = 0) in vec3 inPos;\n"
+    "void main() {\n"
+    "   gl_Position = vec4(inPos, 1.0);\n"
+    "}\0";
+
 void framebufferSizeCallback(GLFWwindow *window, int width, int height) {
     glViewport(0, 0, width, height);
 }
@@ -31,6 +42,14 @@ GLFWwindow *initGLFW() {
 #define IF(x, y) if (!(x)) { printf("%s\n", y); } else
 
 int main() {
+    float vertices[] = {
+        -0.5f, -0.5f, 0.0f,
+        0.5f, -0.5f, 0.0f,
+        0.0f, 0.5f, 0.0f
+    };
+    unsigned int VBO;
+    unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER);
+
     GLFWwindow *window = initGLFW();
     int result = 1;
 
@@ -41,6 +60,14 @@ int main() {
         glViewport(0, 0, 800, 600);
         glfwSetFramebufferSizeCallback(window, framebufferSizeCallback);
 
+        glGenBuffers(1, &VBO);
+        glBindBuffer(GL_ARRAY_BUFFER, VBO);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+        glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
+        glCompileShader(vertexShader);
+        shaderInit();
+        
         while (!glfwWindowShouldClose(window)) {
             processInput(window);
 
