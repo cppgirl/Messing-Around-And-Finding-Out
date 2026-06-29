@@ -82,7 +82,7 @@ GLFWwindow *initGLFW() {
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    GLFWwindow *result = glfwCreateWindow(800, 600, "Window Tittle", NULL, NULL);
+    GLFWwindow *result = glfwCreateWindow(800, 600, "Mango", NULL, NULL);
 
     if (result != NULL) {
         glfwMakeContextCurrent(result);
@@ -95,9 +95,9 @@ GLFWwindow *initGLFW() {
 
 int main() {
     float vertices[] = {
-        -0.5f, -0.5f, 0.0f,
-        0.5f, -0.5f, 0.0f,
-        0.0f, 0.5f, 0.0f
+        0.5f, -0.5f, 0.0f,  1.0f, 0.0f, 0.0f,
+        -0.5f, -0.5f, 0.0f,  0.0f, 1.0f, 0.0f,
+        0.0f, 0.5f, 0.0f,  0.0f, 0.0f, 1.0f
     };
     unsigned int VBO;
     GLFWwindow *window = initGLFW();
@@ -122,12 +122,17 @@ int main() {
         glBindBuffer(GL_ARRAY_BUFFER, VBO);
         glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
         glEnableVertexAttribArray(0);
 
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+        glEnableVertexAttribArray(1);
 
-        glBindVertexArray(0);
+        //glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+        //glBindVertexArray(0);
+        
+        glUseProgram(shaderProgram);
 
         while (!glfwWindowShouldClose(window)) {
             processInput(window);
@@ -135,7 +140,6 @@ int main() {
             glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
             glClear(GL_COLOR_BUFFER_BIT);
 
-            glUseProgram(shaderProgram);
             glBindVertexArray(VAO);
             glDrawArrays(GL_TRIANGLES, 0, 3);
 
