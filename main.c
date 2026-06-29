@@ -1,18 +1,56 @@
 #include <stdio.h>
+#include <stdlib.h>
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
-void shaderInit(char **vertexShader) {
-    FILE *fileVar = fopen("shader.vert", "r");
+static char *copyFileContent(const char *filename, int *lines) {
+    char *buffer = NULL;
+    char c = 0;
+    int i = 0;
 
+    FILE *fileVar = fopen(filename, "rw");
+
+    if (NULL == fileVar) {
+        printf("\n%s not opened :(\n", filename);
+    }
+
+    fseek(fileVar, 0, SEEK_END);
+    *lines = ftell(fileVar);
+    buffer = malloc(sizeof(char) * (*lines + 1));
+
+    fseek(fileVar, 0, SEEK_SET);
+
+    while (EOF != (c = fgetc(fileVar))) {
+        buffer[i] = c;
+        i += 1;
+    }
+
+    buffer[i] = '\0';
+
+    fclose(fileVar);
+
+    return buffer;
 }
 
-const char *vertexShaderSource = "#version 400 core\n"
-    "layout (location = 0) in vec3 inPos;\n"
-    "void main() {\n"
-    "   gl_Position = vec4(inPos, 1.0);\n"
-    "}\0";
+void shaderInit() {
+    unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER);
+    int size = 0;
+    //ugly file path to be fixed
+    char *vertexShaderSource = copyFileContent("C:/Users/mango/Desktop/JFA The Game/shader.vert", &size);
+
+    glShaderSource(vertexShader, 1, (const char **)&vertexShaderSource, NULL);
+    glCompileShader(vertexShader);
+
+    int success;
+    char infoLog[512];
+    glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
+    if (!success) {
+        glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
+        printf("Vertex shader compilation failed :(\n");
+    }
+
+}
 
 void framebufferSizeCallback(GLFWwindow *window, int width, int height) {
     glViewport(0, 0, width, height);
@@ -48,8 +86,6 @@ int main() {
         0.0f, 0.5f, 0.0f
     };
     unsigned int VBO;
-    unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER);
-
     GLFWwindow *window = initGLFW();
     int result = 1;
 
@@ -64,8 +100,6 @@ int main() {
         glBindBuffer(GL_ARRAY_BUFFER, VBO);
         glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-        glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
-        glCompileShader(vertexShader);
         shaderInit();
         
         while (!glfwWindowShouldClose(window)) {
