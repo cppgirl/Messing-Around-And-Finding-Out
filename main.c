@@ -4,10 +4,16 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
-static char *copyFileContent(const char *filename, int *lines) {
+struct Vertex{
+    float pos[3];
+    float color[3];
+};
+
+static char *copyFileContent(const char *filename) {
     char *buffer = NULL;
     char c = 0;
     int i = 0;
+    int lines = 0;
 
     FILE *fileVar = fopen(filename, "rw");
 
@@ -16,8 +22,8 @@ static char *copyFileContent(const char *filename, int *lines) {
     }
 
     fseek(fileVar, 0, SEEK_END);
-    *lines = ftell(fileVar);
-    buffer = malloc(sizeof(char) * (*lines + 1));
+    lines = ftell(fileVar);
+    buffer = malloc(sizeof(char) * (lines + 1));
 
     fseek(fileVar, 0, SEEK_SET);
 
@@ -34,21 +40,19 @@ static char *copyFileContent(const char *filename, int *lines) {
 }
 
 void shaderInit(unsigned int shaderProgram) {
+    int success;
+    char infoLog[512];
     unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER);
     unsigned int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-    int size = 0;
     //ugly file path to be fixed
-    char *vertexShaderSource = copyFileContent("C:/Users/mango/Desktop/JFA The Game/shader.vert", &size);
+    char *vertexShaderSource = copyFileContent("C:/Users/mango/Desktop/JFA The Game/shader.vert");
 
     glShaderSource(vertexShader, 1, (const char **)&vertexShaderSource, NULL);
     glCompileShader(vertexShader);
 
-    char *vertexShaderSource2 = copyFileContent("C:/Users/mango/Desktop/JFA The Game/shader.frag", &size);
+    char *vertexShaderSource2 = copyFileContent("C:/Users/mango/Desktop/JFA The Game/shader.frag");
     glShaderSource(fragmentShader, 1, (const char **)&vertexShaderSource2, NULL);
     glCompileShader(fragmentShader);
-
-    int success;
-    char infoLog[512];
 
     glAttachShader(shaderProgram, vertexShader);
     glAttachShader(shaderProgram, fragmentShader);
@@ -94,10 +98,19 @@ GLFWwindow *initGLFW() {
 #define IF(x, y) if (!(x)) { printf("%s\n", y); } else
 
 int main() {
-    float vertices[] = {
-        0.5f, -0.5f, 0.0f,  1.0f, 0.0f, 0.0f,
-        -0.5f, -0.5f, 0.0f,  0.0f, 1.0f, 0.0f,
-        0.0f, 0.5f, 0.0f,  0.0f, 0.0f, 1.0f
+    struct Vertex vertices[] = {
+        {
+            .pos = {0.5f, -0.5f, 0.0f},  
+            .color = {1.0f, 0.0f, 0.0f}
+        },
+        {
+            .pos = {-0.5f, -0.5f, 0.0f},  
+            .color = {0.0f, 1.0f, 0.0f}
+        },
+        {
+            .pos = {0.0f, 0.5f, 0.0f},  
+            .color = {0.0f, 0.0f, 1.0f}
+        }
     };
     unsigned int VBO;
     GLFWwindow *window = initGLFW();
